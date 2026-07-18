@@ -17,5 +17,9 @@ blake3 = "1"
 # Code parsing
 regex = "1"
 
+[features]
+default = []
+llm-analysis = []  # enables LLM-powered multi-agent analysis
+
 [dev-dependencies]
 tempfile = "3"

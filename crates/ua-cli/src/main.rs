@@ -66,7 +66,9 @@ fn main() -> anyhow::Result<()> {
             println!("  ua scan [path]                       Scan project structure");
             println!("  ua parse [path]                      Parse code files");
             println!("  ua build [path] [out]                Build knowledge graph");
-            println!("  ua build --incremental [path]        Incremental: only re-analyze changed files");
+            println!(
+                "  ua build --incremental [path]        Incremental: only re-analyze changed files"
+            );
             println!("  ua build --full [path]               Full re-analysis (default)");
             println!("  ua build --format html [path]        Build HTML dashboard report");
             println!("  ua build --format md [path]          Build Markdown report");
@@ -165,10 +167,8 @@ fn build_incremental(root: &Path, format: &str) -> anyhow::Result<()> {
     println!("[Phase 1b] Computing current fingerprints ...");
     let new_fingerprints = ua_core::incremental::compute_fingerprints(root, &scan.files)?;
 
-    let changed_files = ua_core::incremental::find_changed_files(
-        &old_meta.fingerprints,
-        &new_fingerprints,
-    );
+    let changed_files =
+        ua_core::incremental::find_changed_files(&old_meta.fingerprints, &new_fingerprints);
 
     if changed_files.is_empty() {
         println!("  No files changed since last analysis. Everything is up to date.");
@@ -178,7 +178,10 @@ fn build_incremental(root: &Path, format: &str) -> anyhow::Result<()> {
         return Ok(());
     }
 
-    println!("  {} files changed since last analysis", changed_files.len());
+    println!(
+        "  {} files changed since last analysis",
+        changed_files.len()
+    );
     for f in &changed_files {
         println!("    - {}", f);
     }

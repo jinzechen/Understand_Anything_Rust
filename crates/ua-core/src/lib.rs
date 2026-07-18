@@ -6,4 +6,7 @@ pub mod report;
 pub mod scanner;
 pub mod types;
 
+#[cfg(feature = "llm-analysis")]
+pub mod agent;
+
 pub use types::*;
