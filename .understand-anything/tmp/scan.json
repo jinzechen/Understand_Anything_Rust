@@ -1,0 +1,164 @@
+{
+  "scriptCompleted": true,
+  "files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "language": "yaml",
+      "sizeLines": 22,
+      "fileCategory": "infra"
+    },
+    {
+      "path": ".understand-anything/tmp/ua-scan-files.json",
+      "language": "json",
+      "sizeLines": 100,
+      "fileCategory": "config"
+    },
+    {
+      "path": "Cargo.toml",
+      "language": "toml",
+      "sizeLines": 14,
+      "fileCategory": "config"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "language": "markdown",
+      "sizeLines": 38,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "CODE_OF_CONDUCT.md",
+      "language": "markdown",
+      "sizeLines": 132,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "language": "markdown",
+      "sizeLines": 101,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "crates/ua-cli/Cargo.toml",
+      "language": "toml",
+      "sizeLines": 15,
+      "fileCategory": "config"
+    },
+    {
+      "path": "crates/ua-cli/src/main.rs",
+      "language": "rust",
+      "sizeLines": 320,
+      "fileCategory": "code"
+    },
+    {
+      "path": "crates/ua-core/Cargo.toml",
+      "language": "toml",
+      "sizeLines": 25,
+      "fileCategory": "config"
+    },
+    {
+      "path": "crates/ua-core/src/agent.rs",
+      "language": "rust",
+      "sizeLines": 1444,
+      "fileCategory": "code"
+    },
+    {
+      "path": "crates/ua-core/src/dashboard.rs",
+      "language": "rust",
+      "sizeLines": 1092,
+      "fileCategory": "code"
+    },
+    {
+      "path": "crates/ua-core/src/graph.rs",
+      "language": "rust",
+      "sizeLines": 943,
+      "fileCategory": "code"
+    },
+    {
+      "path": "crates/ua-core/src/incremental.rs",
+      "language": "rust",
+      "sizeLines": 266,
+      "fileCategory": "code"
+    },
+    {
+      "path": "crates/ua-core/src/lib.rs",
+      "language": "rust",
+      "sizeLines": 12,
+      "fileCategory": "code"
+    },
+    {
+      "path": "crates/ua-core/src/parser/mod.rs",
+      "language": "rust",
+      "sizeLines": 242,
+      "fileCategory": "code"
+    },
+    {
+      "path": "crates/ua-core/src/report.css",
+      "language": "css",
+      "sizeLines": 294,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "crates/ua-core/src/report.rs",
+      "language": "rust",
+      "sizeLines": 915,
+      "fileCategory": "code"
+    },
+    {
+      "path": "crates/ua-core/src/scanner.rs",
+      "language": "rust",
+      "sizeLines": 283,
+      "fileCategory": "code"
+    },
+    {
+      "path": "crates/ua-core/src/types.rs",
+      "language": "rust",
+      "sizeLines": 411,
+      "fileCategory": "code"
+    },
+    {
+      "path": "crates/ua-mcp/Cargo.toml",
+      "language": "toml",
+      "sizeLines": 17,
+      "fileCategory": "config"
+    },
+    {
+      "path": "crates/ua-mcp/src/main.rs",
+      "language": "rust",
+      "sizeLines": 106,
+      "fileCategory": "code"
+    },
+    {
+      "path": "DESIGN.md",
+      "language": "markdown",
+      "sizeLines": 148,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "README.md",
+      "language": "markdown",
+      "sizeLines": 534,
+      "fileCategory": "docs"
+    }
+  ],
+  "totalFiles": 23,
+  "filteredByIgnore": 0,
+  "estimatedComplexity": "small",
+  "stats": {
+    "filesScanned": 23,
+    "byCategory": {
+      "infra": 1,
+      "config": 5,
+      "docs": 5,
+      "code": 11,
+      "markup": 1
+    },
+    "byLanguage": {
+      "yaml": 1,
+      "json": 1,
+      "toml": 4,
+      "markdown": 5,
+      "rust": 11,
+      "css": 1
+    }
+  }
+}
