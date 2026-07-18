@@ -12,3 +12,4 @@ path = "src/main.rs"
 [dependencies]
 ua-core = { path = "../ua-core" }
 anyhow = "1"
+serde_json = "1"

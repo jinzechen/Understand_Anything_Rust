@@ -1,0 +1,294 @@
+/* ── Dark Theme Reset ──────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+  background: #0d1117;
+  color: #c9d1d9;
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* ── Header ────────────────────────────────────────────────────────────── */
+header {
+  background: linear-gradient(135deg, #161b22 0%, #0d1117 100%);
+  border-bottom: 1px solid #30363d;
+  padding: 2.5rem 2rem 2rem;
+  text-align: center;
+}
+header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #58a6ff;
+  margin-bottom: 0.5rem;
+}
+header .subtitle {
+  color: #8b949e;
+  font-size: 0.95rem;
+}
+
+/* ── Main ──────────────────────────────────────────────────────────────── */
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+/* ── Sections ──────────────────────────────────────────────────────────── */
+section {
+  margin-bottom: 3rem;
+  padding: 1.5rem;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+}
+section h2 {
+  font-size: 1.4rem;
+  color: #f0f6fc;
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid #30363d;
+}
+
+/* ── Overview Grid ─────────────────────────────────────────────────────── */
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.ov-card {
+  background: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 0.8rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.ov-label {
+  font-size: 0.75rem;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.ov-value {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #f0f6fc;
+}
+.ov-value.mono {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.9rem;
+}
+.complexity-simple { color: #3fb950 !important; }
+.complexity-moderate { color: #d29922 !important; }
+.complexity-complex { color: #f85149 !important; }
+.description {
+  color: #8b949e;
+  margin-top: 0.5rem;
+}
+
+/* ── Layer Cards ───────────────────────────────────────────────────────── */
+.layer-card {
+  margin-bottom: 1rem;
+  padding: 1rem 1.2rem;
+  border-radius: 6px;
+  background: #161b22;
+}
+.layer-card h3 {
+  font-size: 1.1rem;
+  color: #f0f6fc;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+.layer-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.layer-count {
+  font-size: 0.8rem;
+  color: #8b949e;
+  font-weight: normal;
+}
+.layer-desc {
+  color: #8b949e;
+  font-size: 0.9rem;
+  margin-bottom: 0.6rem;
+}
+.layer-nodes {
+  list-style: none;
+  padding: 0;
+}
+.layer-nodes li {
+  padding: 0.25rem 0;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.85rem;
+  color: #c9d1d9;
+}
+.layer-nodes li::before {
+  content: "└  ";
+  color: #484f58;
+}
+
+/* ── File Table ────────────────────────────────────────────────────────── */
+.table-wrap { overflow-x: auto; }
+.file-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.file-table th {
+  text-align: left;
+  padding: 0.6rem 0.8rem;
+  background: #21262d;
+  color: #8b949e;
+  font-weight: 600;
+  border-bottom: 2px solid #30363d;
+}
+.file-table td {
+  padding: 0.5rem 0.8rem;
+  border-bottom: 1px solid #30363d;
+  color: #c9d1d9;
+}
+.file-table tr:hover td {
+  background: #1c2128;
+}
+.path-col {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  color: #79c0ff !important;
+}
+.lang-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  background: #1f6feb22;
+  border: 1px solid #1f6feb44;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: #58a6ff;
+}
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ── Import List ────────────────────────────────────────────────────────── */
+.import-list {
+  list-style: none;
+  padding: 0;
+}
+.import-list li {
+  padding: 0.35rem 0;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.9rem;
+  color: #a5d6ff;
+}
+.edge-desc {
+  color: #8b949e;
+  font-size: 0.85rem;
+}
+
+/* ── ASCII Tree ─────────────────────────────────────────────────────────── */
+.ascii-tree {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.85rem;
+  color: #c9d1d9;
+  background: #0d1117;
+  padding: 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  line-height: 1.6;
+}
+
+/* ── Tour Steps ─────────────────────────────────────────────────────────── */
+.tour-step {
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.2rem;
+  background: #21262d;
+  border-radius: 6px;
+  border-left: 3px solid #58a6ff;
+}
+.tour-step h3 {
+  font-size: 1.05rem;
+  color: #f0f6fc;
+  margin-bottom: 0.5rem;
+}
+.step-num {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  background: #1f6feb;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.tour-step p {
+  color: #c9d1d9;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+.lesson {
+  border-left: 3px solid #d29922;
+  background: #d2992211;
+  padding: 0.6rem 1rem;
+  margin: 0.5rem 0;
+  color: #e3b341;
+  font-style: italic;
+  border-radius: 0 4px 4px 0;
+}
+.tour-nodes {
+  list-style: none;
+  padding: 0;
+}
+.tour-nodes li {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.85rem;
+  color: #79c0ff;
+  padding: 0.15rem 0;
+}
+.tour-nodes li::before {
+  content: "→ ";
+  color: #8b949e;
+}
+
+/* ── Node Ref ──────────────────────────────────────────────────────────── */
+.node-ref {
+  color: #58a6ff;
+  text-decoration: none;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.9rem;
+}
+.node-ref:hover {
+  text-decoration: underline;
+  color: #79c0ff;
+}
+
+/* ── Empty State ────────────────────────────────────────────────────────── */
+.empty {
+  color: #8b949e;
+  font-style: italic;
+}
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+footer {
+  text-align: center;
+  padding: 2rem;
+  color: #484f58;
+  font-size: 0.85rem;
+  border-top: 1px solid #30363d;
+  margin-top: 2rem;
+}
+
+/* ── Mobile Responsive ──────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  main { padding: 1rem; }
+  header { padding: 1.5rem 1rem; }
+  header h1 { font-size: 1.5rem; }
+  .overview-grid { grid-template-columns: 1fr 1fr; }
+  section { padding: 1rem; }
+}
