@@ -300,20 +300,26 @@ fn parse_format_flag(args: &[String]) -> &str {
     "json"
 }
 
-/// Extract the output path from args (positional after root, not a flag).
+/// Extract the output path from args (positional after root, not a flag or flag value).
 fn args_for_output_path() -> Option<String> {
-    // We re-parse args from the process to find the output path
     let args: Vec<String> = std::env::args().collect();
     let mut found_root = false;
+    let mut skip_next = false;
     for i in 1..args.len() {
         if args[i].starts_with("--") {
+            if !args[i].contains('=') {
+                skip_next = true; // --format html → skip "html"
+            }
+            continue;
+        }
+        if skip_next {
+            skip_next = false;
             continue;
         }
         if !found_root {
             found_root = true;
             continue;
         }
-        // First non-flag after root is the output path
         return Some(args[i].clone());
     }
     None
