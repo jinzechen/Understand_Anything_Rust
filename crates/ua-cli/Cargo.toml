@@ -1,0 +1,14 @@
+[package]
+name = "ua-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Understand Anything CLI — command-line codebase analysis"
+
+[[bin]]
+name = "ua"
+path = "src/main.rs"
+
+[dependencies]
+ua-core = { path = "../ua-core" }
+anyhow = "1"

@@ -1,55 +1,29 @@
-//! Code parser trait and registry.
-//!
-//! Extracts structural information (functions, classes, imports, etc.)
-//! from source code using tree-sitter grammars.
+//! Code parser trait and Rust parser implementation.
+//! Extracts structural information from source code using regex-based analysis.
 
 use std::path::Path;
+use regex::Regex;
 
-use crate::types::{DefinitionInfo, EndpointInfo, SectionInfo, ServiceInfo, StepInfo};
+use crate::types::{DefinitionInfo, EndpointInfo, ImportInfo, SectionInfo, ServiceInfo, StepInfo};
 
 /// Result of parsing a single source file.
 #[derive(Debug, Clone)]
 pub struct ParsedFile {
-    /// File path relative to project root.
     pub path: String,
-    /// Detected language.
     pub language: String,
-    /// Line count.
     pub line_count: usize,
-    /// Top-level definitions (functions, classes, modules).
     pub definitions: Vec<DefinitionInfo>,
-    /// Import statements (what this file imports).
     pub imports: Vec<ImportInfo>,
-    /// Document sections (for markdown, etc.).
     pub sections: Vec<SectionInfo>,
-    /// Infrastructure definitions (Docker services, etc.).
     pub services: Vec<ServiceInfo>,
-    /// API endpoints (HTTP routes, GraphQL queries, etc.).
     pub endpoints: Vec<EndpointInfo>,
-    /// Pipeline steps (CI stages, workflow steps).
     pub steps: Vec<StepInfo>,
-}
-
-/// Information about an import statement.
-#[derive(Debug, Clone)]
-pub struct ImportInfo {
-    /// What is being imported.
-    pub name: String,
-    /// Where it's imported from (module path).
-    pub source: String,
-    /// Line range in the source file.
-    pub line_range: (u32, u32),
 }
 
 /// Trait for language-specific code parsers.
 pub trait CodeParser: Send + Sync {
-    /// The language identifier this parser handles (e.g., "rust", "python").
     fn language(&self) -> &str;
-
-    /// Supported file extensions for this language.
     fn extensions(&self) -> &[&str];
-
-    /// Parse a source file and extract structural information.
     fn parse_file(&self, path: &Path, content: &str) -> anyhow::Result<ParsedFile>;
 }
 
@@ -67,7 +41,6 @@ impl ParserRegistry {
         self.parsers.push(parser);
     }
 
-    /// Find the parser for a given file path.
     pub fn find_for(&self, path: &Path) -> Option<&dyn CodeParser> {
         let ext = path.extension()?.to_str()?;
         self.parsers
@@ -76,12 +49,9 @@ impl ParserRegistry {
             .map(|p| p.as_ref())
     }
 
-    /// Parse a file with the appropriate parser.
     pub fn parse(&self, path: &Path) -> anyhow::Result<ParsedFile> {
-        let parser = self
-            .find_for(path)
-            .ok_or_else(|| anyhow::anyhow!("No parser found for: {}", path.display()))?;
-
+        let parser = self.find_for(path)
+            .ok_or_else(|| anyhow::anyhow!("No parser for: {}", path.display()))?;
         let content = std::fs::read_to_string(path)?;
         parser.parse_file(path, &content)
     }
@@ -90,189 +60,121 @@ impl ParserRegistry {
 impl Default for ParserRegistry {
     fn default() -> Self {
         let mut registry = Self::new();
-        // Register Rust parser
-        registry.register(Box::new(RustParser));
+        registry.register(Box::new(RustParser::new()));
         registry
     }
 }
 
 // ── Rust Parser ──────────────────────────────────────────────────────────────
 
-/// Tree-sitter based Rust code parser.
-pub struct RustParser;
+pub struct RustParser {
+    fn_re: Regex,
+    struct_re: Regex,
+    trait_re: Regex,
+    enum_re: Regex,
+    impl_re: Regex,
+    use_re: Regex,
+}
+
+impl RustParser {
+    pub fn new() -> Self {
+        Self {
+            fn_re: Regex::new(r"(?m)^\s*(?:pub(?:\s*\(\s*[^)]*\s*\))?\s+)?(?:async\s+)?(?:unsafe\s+)?fn\s+(\w+)").unwrap(),
+            struct_re: Regex::new(r"(?m)^\s*(?:pub(?:\s*\(\s*[^)]*\s*\))?\s+)?struct\s+(\w+)").unwrap(),
+            trait_re: Regex::new(r"(?m)^\s*(?:pub(?:\s*\(\s*[^)]*\s*\))?\s+)?(?:unsafe\s+)?trait\s+(\w+)").unwrap(),
+            enum_re: Regex::new(r"(?m)^\s*(?:pub(?:\s*\(\s*[^)]*\s*\))?\s+)?enum\s+(\w+)").unwrap(),
+            impl_re: Regex::new(r"(?m)^\s*(?:pub(?:\s*\(\s*[^)]*\s*\))?\s+)?(?:unsafe\s+)?impl(?:\s*<[^>]*>\s*)?\s+(\S+)").unwrap(),
+            use_re: Regex::new(r"(?m)^\s*use\s+([^;]+);").unwrap(),
+        }
+    }
+
+    fn line_of(&self, content: &str, pos: usize) -> u32 {
+        content[..pos].chars().filter(|&c| c == '\n').count() as u32 + 1
+    }
+}
 
 impl CodeParser for RustParser {
-    fn language(&self) -> &str {
-        "rust"
-    }
-
-    fn extensions(&self) -> &[&str] {
-        &["rs"]
-    }
+    fn language(&self) -> &str { "rust" }
+    fn extensions(&self) -> &[&str] { &["rs"] }
 
     fn parse_file(&self, path: &Path, content: &str) -> anyhow::Result<ParsedFile> {
         let line_count = content.lines().count();
         let mut definitions = Vec::new();
         let mut imports = Vec::new();
 
-        // Use regex-based extraction (tree-sitter optional for now)
-        use regex::Regex;
-
-        // Extract function definitions
-        let fn_re = Regex::new(
-            r"(?m)^\s*(?:pub(?:\s*\(\s*(?:crate|super|self)\s*\))?\s+)?(?:async\s+)?(?:unsafe\s+)?(?:extern\s+(?:"[^"]*"\s+)?)?fn\s+(\w+)"
-        ).unwrap();
-        for cap in fn_re.captures_iter(content) {
+        for cap in self.fn_re.captures_iter(content) {
             let name = cap[1].to_string();
-            if name != "main" && !name.starts_with("test_") {
-                let line = content[..cap.get(0).unwrap().start()]
-                    .chars()
-                    .filter(|&c| c == '\n')
-                    .count() as u32 + 1;
+            if name != "main" {
+                let line = self.line_of(content, cap.get(0).unwrap().start());
                 definitions.push(DefinitionInfo {
-                    name,
-                    kind: "function".to_string(),
-                    line_range: (line, line),
-                    fields: Vec::new(),
+                    name, kind: "function".into(),
+                    line_range: (line, line), fields: vec![],
                 });
             }
         }
 
-        // Extract struct definitions
-        let struct_re = Regex::new(
-            r"(?m)^\s*(?:pub(?:\s*\(\s*(?:crate|super|self)\s*\))?\s+)?struct\s+(\w+)"
-        ).unwrap();
-        for cap in struct_re.captures_iter(content) {
-            let name = cap[1].to_string();
-            let line = content[..cap.get(0).unwrap().start()]
-                .chars()
-                .filter(|&c| c == '\n')
-                .count() as u32 + 1;
+        for cap in self.struct_re.captures_iter(content) {
+            let line = self.line_of(content, cap.get(0).unwrap().start());
             definitions.push(DefinitionInfo {
-                name,
-                kind: "struct".to_string(),
-                line_range: (line, line),
-                fields: Vec::new(),
+                name: cap[1].to_string(), kind: "struct".into(),
+                line_range: (line, line), fields: vec![],
             });
         }
 
-        // Extract trait definitions
-        let trait_re = Regex::new(
-            r"(?m)^\s*(?:pub(?:\s*\(\s*(?:crate|super|self)\s*\))?\s+)?(?:unsafe\s+)?trait\s+(\w+)"
-        ).unwrap();
-        for cap in trait_re.captures_iter(content) {
-            let name = cap[1].to_string();
-            let line = content[..cap.get(0).unwrap().start()]
-                .chars()
-                .filter(|&c| c == '\n')
-                .count() as u32 + 1;
+        for cap in self.trait_re.captures_iter(content) {
+            let line = self.line_of(content, cap.get(0).unwrap().start());
             definitions.push(DefinitionInfo {
-                name,
-                kind: "trait".to_string(),
-                line_range: (line, line),
-                fields: Vec::new(),
+                name: cap[1].to_string(), kind: "trait".into(),
+                line_range: (line, line), fields: vec![],
             });
         }
 
-        // Extract enum definitions
-        let enum_re = Regex::new(
-            r"(?m)^\s*(?:pub(?:\s*\(\s*(?:crate|super|self)\s*\))?\s+)?enum\s+(\w+)"
-        ).unwrap();
-        for cap in enum_re.captures_iter(content) {
-            let name = cap[1].to_string();
-            let line = content[..cap.get(0).unwrap().start()]
-                .chars()
-                .filter(|&c| c == '\n')
-                .count() as u32 + 1;
+        for cap in self.enum_re.captures_iter(content) {
+            let line = self.line_of(content, cap.get(0).unwrap().start());
             definitions.push(DefinitionInfo {
-                name,
-                kind: "enum".to_string(),
-                line_range: (line, line),
-                fields: Vec::new(),
+                name: cap[1].to_string(), kind: "enum".into(),
+                line_range: (line, line), fields: vec![],
             });
         }
 
-        // Extract impl blocks
-        let impl_re = Regex::new(
-            r"(?m)^\s*(?:pub(?:\s*\(\s*(?:crate|super|self)\s*\))?\s+)?(?:unsafe\s+)?impl(?:\s*<\s*\w+(?:\s*:\s*\w+(?:\s*\+\s*\w+)*)?\s*>)?\s+(\w+(?:::)?\w*)"
-        ).unwrap();
-        for cap in impl_re.captures_iter(content) {
-            let name = format!("impl {}", cap[1].to_string());
-            let line = content[..cap.get(0).unwrap().start()]
-                .chars()
-                .filter(|&c| c == '\n')
-                .count() as u32 + 1;
+        for cap in self.impl_re.captures_iter(content) {
+            let line = self.line_of(content, cap.get(0).unwrap().start());
             definitions.push(DefinitionInfo {
-                name,
-                kind: "implementation".to_string(),
-                line_range: (line, line),
-                fields: Vec::new(),
+                name: format!("impl {}", &cap[1]), kind: "implementation".into(),
+                line_range: (line, line), fields: vec![],
             });
         }
 
-        // Extract use/import statements
-        let use_re = Regex::new(r"(?m)^\s*use\s+([^;]+);").unwrap();
-        for cap in use_re.captures_iter(content) {
+        for cap in self.use_re.captures_iter(content) {
             let source = cap[1].trim().to_string();
             let name = source.split("::").last().unwrap_or(&source).to_string();
-            let line = content[..cap.get(0).unwrap().start()]
-                .chars()
-                .filter(|&c| c == '\n')
-                .count() as u32 + 1;
-            imports.push(ImportInfo {
-                name,
-                source,
-                line_range: (line, line),
-            });
+            let line = self.line_of(content, cap.get(0).unwrap().start());
+            imports.push(ImportInfo { name, source, line_range: (line, line) });
         }
 
         Ok(ParsedFile {
             path: path.to_string_lossy().replace('\\', "/"),
-            language: "rust".to_string(),
+            language: "rust".into(),
             line_count,
             definitions,
             imports,
-            sections: Vec::new(),
-            services: Vec::new(),
-            endpoints: Vec::new(),
-            steps: Vec::new(),
+            sections: vec![],
+            services: vec![],
+            endpoints: vec![],
+            steps: vec![],
         })
     }
 }
 
-// ── Generic/Plaintext Parser ─────────────────────────────────────────────────
-
-/// Fallback parser for unsupported languages.
-pub struct PlaintextParser;
-
-impl CodeParser for PlaintextParser {
-    fn language(&self) -> &str { "plaintext" }
-    fn extensions(&self) -> &[&str] { &["txt", "cfg", "ini", "log"] }
-
-    fn parse_file(&self, path: &Path, content: &str) -> anyhow::Result<ParsedFile> {
-        Ok(ParsedFile {
-            path: path.to_string_lossy().replace('\\', "/"),
-            language: "plaintext".to_string(),
-            line_count: content.lines().count(),
-            definitions: Vec::new(),
-            imports: Vec::new(),
-            sections: Vec::new(),
-            services: Vec::new(),
-            endpoints: Vec::new(),
-            steps: Vec::new(),
-        })
-    }
-}
+// ── Tests ────────────────────────────────────────────────────────────────────
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_rust_parser_functions() {
-        let code = r#"
+    const SAMPLE_RUST: &str = "\
 pub fn hello() -> String {
-    "world".into()
+    \"world\".into()
 }
 
 async fn load_data() -> Result<Vec<u8>> {
@@ -295,16 +197,23 @@ impl Handler for Config {
 
 use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
-"#;
-        let parser = RustParser;
-        let result = parser.parse_file(std::path::Path::new("test.rs"), code).unwrap();
+";
+
+    #[test]
+    fn test_rust_parser_functions() {
+        let parser = RustParser::new();
+        let result = parser.parse_file(Path::new("test.rs"), SAMPLE_RUST).unwrap();
 
         assert_eq!(result.language, "rust");
-        assert!(result.definitions.iter().any(|d| d.name == "hello" && d.kind == "function"));
-        assert!(result.definitions.iter().any(|d| d.name == "load_data" && d.kind == "function"));
-        assert!(result.definitions.iter().any(|d| d.name == "Config" && d.kind == "struct"));
-        assert!(result.definitions.iter().any(|d| d.name == "Handler" && d.kind == "trait"));
-        assert!(result.imports.iter().any(|i| i.source.contains("std::collections")));
-        assert!(result.imports.iter().any(|i| i.source.contains("serde")));
+        let names: Vec<_> = result.definitions.iter().map(|d| &d.name).collect();
+        assert!(names.contains(&&"hello".to_string()));
+        assert!(names.contains(&&"load_data".to_string()));
+        assert!(names.contains(&&"Config".to_string()));
+        assert!(names.contains(&&"Handler".to_string()));
+        assert!(names.contains(&&"impl Config".to_string()));
+
+        let import_srcs: Vec<_> = result.imports.iter().map(|i| &i.source).collect();
+        assert!(import_srcs.iter().any(|s| s.contains("std::collections")));
+        assert!(import_srcs.iter().any(|s| s.contains("serde")));
     }
 }

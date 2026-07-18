@@ -13,5 +13,6 @@ anyhow = "1"
 walkdir = "2"
 sha2 = "0.10"
 
-# Code parsing (add more languages as needed)
+# Code parsing
+regex = "1"
 tree-sitter = "0.24"

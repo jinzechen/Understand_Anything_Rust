@@ -353,3 +353,55 @@ mod tests {
         assert_eq!(parsed.project.languages, vec!["rust"]);
     }
 }
+
+// ── Parser Result Types ──────────────────────────────────────────────────────
+
+/// A code definition extracted by the parser.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DefinitionInfo {
+    pub name: String,
+    pub kind: String,
+    pub line_range: (u32, u32),
+    #[serde(default)]
+    pub fields: Vec<String>,
+}
+
+/// An import statement.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ImportInfo {
+    pub name: String,
+    pub source: String,
+    pub line_range: (u32, u32),
+}
+
+/// A document section (markdown headers, etc.).
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct SectionInfo {
+    pub title: String,
+    pub level: u32,
+    pub line_range: (u32, u32),
+}
+
+/// An infrastructure service definition.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct ServiceInfo {
+    pub name: String,
+    pub image: Option<String>,
+    pub ports: Vec<String>,
+}
+
+/// An API endpoint definition.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct EndpointInfo {
+    pub method: String,
+    pub path: String,
+    pub line_range: (u32, u32),
+}
+
+/// A pipeline/CI step definition.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct StepInfo {
+    pub name: String,
+    pub command: Option<String>,
+    pub line_range: (u32, u32),
+}
