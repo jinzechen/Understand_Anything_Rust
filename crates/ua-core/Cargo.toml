@@ -1,0 +1,17 @@
+[package]
+name = "ua-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Understand Anything core library — codebase analysis & knowledge graph engine"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+anyhow = "1"
+walkdir = "2"
+sha2 = "0.10"
+
+# Code parsing (add more languages as needed)
+tree-sitter = "0.24"

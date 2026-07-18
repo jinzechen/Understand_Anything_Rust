@@ -1,0 +1,17 @@
+[package]
+name = "ua-mcp"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Understand Anything MCP Server — expose code analysis tools via stdio JSON-RPC"
+
+[[bin]]
+name = "ua-mcp"
+path = "src/main.rs"
+
+[dependencies]
+ua-core = { path = "../ua-core" }
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"
