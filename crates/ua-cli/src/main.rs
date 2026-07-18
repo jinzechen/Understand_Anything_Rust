@@ -136,7 +136,7 @@ fn build_full(root: &Path, format: &str) -> anyhow::Result<()> {
         scan.files.len()
     );
 
-    write_output(root, &graph, format, args_for_output_path());
+    write_output(root, &graph, format, args_for_output_path().as_deref());
     Ok(())
 }
 
@@ -221,7 +221,7 @@ fn build_incremental(root: &Path, format: &str) -> anyhow::Result<()> {
     ua_core::incremental::write_meta(root, &meta)?;
     println!("  Saved fingerprints to .understand-anything/meta.json");
 
-    write_output(root, &graph, format, args_for_output_path());
+    write_output(root, &graph, format, args_for_output_path().as_deref());
     Ok(())
 }
 
