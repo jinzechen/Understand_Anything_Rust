@@ -785,7 +785,7 @@ mod tests {
         let mut keys = HashSet::new();
         for edge in &edges {
             let key = (edge.source.clone(), edge.target.clone());
-            assert!(keys.insert(key), "Duplicate edge: {:?}", key);
+            assert!(keys.insert(key.clone()), "Duplicate edge: {:?}", key);
         }
     }
 
