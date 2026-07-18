@@ -1,0 +1,101 @@
+{
+  "scriptCompleted": true,
+  "files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "language": "yaml",
+      "sizeLines": 22,
+      "fileCategory": "infra"
+    },
+    {
+      "path": "Cargo.toml",
+      "language": "toml",
+      "sizeLines": 14,
+      "fileCategory": "config"
+    },
+    {
+      "path": "crates/ua-cli/Cargo.toml",
+      "language": "toml",
+      "sizeLines": 14,
+      "fileCategory": "config"
+    },
+    {
+      "path": "crates/ua-cli/src/main.rs",
+      "language": "rust",
+      "sizeLines": 43,
+      "fileCategory": "code"
+    },
+    {
+      "path": "crates/ua-core/Cargo.toml",
+      "language": "toml",
+      "sizeLines": 18,
+      "fileCategory": "config"
+    },
+    {
+      "path": "crates/ua-core/src/lib.rs",
+      "language": "rust",
+      "sizeLines": 5,
+      "fileCategory": "code"
+    },
+    {
+      "path": "crates/ua-core/src/parser/mod.rs",
+      "language": "rust",
+      "sizeLines": 219,
+      "fileCategory": "code"
+    },
+    {
+      "path": "crates/ua-core/src/scanner.rs",
+      "language": "rust",
+      "sizeLines": 205,
+      "fileCategory": "code"
+    },
+    {
+      "path": "crates/ua-core/src/types.rs",
+      "language": "rust",
+      "sizeLines": 407,
+      "fileCategory": "code"
+    },
+    {
+      "path": "crates/ua-mcp/Cargo.toml",
+      "language": "toml",
+      "sizeLines": 17,
+      "fileCategory": "config"
+    },
+    {
+      "path": "crates/ua-mcp/src/main.rs",
+      "language": "rust",
+      "sizeLines": 100,
+      "fileCategory": "code"
+    },
+    {
+      "path": "DESIGN.md",
+      "language": "markdown",
+      "sizeLines": 148,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "README.md",
+      "language": "markdown",
+      "sizeLines": 38,
+      "fileCategory": "docs"
+    }
+  ],
+  "totalFiles": 13,
+  "filteredByIgnore": 0,
+  "estimatedComplexity": "small",
+  "stats": {
+    "filesScanned": 13,
+    "byCategory": {
+      "infra": 1,
+      "config": 4,
+      "code": 6,
+      "docs": 2
+    },
+    "byLanguage": {
+      "yaml": 1,
+      "toml": 4,
+      "rust": 6,
+      "markdown": 2
+    }
+  }
+}

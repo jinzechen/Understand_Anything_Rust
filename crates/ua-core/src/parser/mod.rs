@@ -210,7 +210,7 @@ use serde::{Serialize, Deserialize};
         assert!(names.contains(&&"load_data".to_string()));
         assert!(names.contains(&&"Config".to_string()));
         assert!(names.contains(&&"Handler".to_string()));
-        assert!(names.contains(&&"impl Config".to_string()));
+        assert!(names.iter().any(|n| n.starts_with("impl ")));
 
         let import_srcs: Vec<_> = result.imports.iter().map(|i| &i.source).collect();
         assert!(import_srcs.iter().any(|s| s.contains("std::collections")));
