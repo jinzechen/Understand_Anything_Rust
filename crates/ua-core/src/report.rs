@@ -334,7 +334,7 @@ fn html_section_dependency_tree(out: &mut String, graph: &KnowledgeGraph) {
     out.push_str("<pre class=\"ascii-tree\">\n");
     let mut seen = HashSet::new();
     for root in roots {
-        if !seen.contains(root) {
+        if !seen.contains(&root.to_string()) {
             render_html_tree(out, root, &children, &node_map, "", true, &mut seen);
         }
     }
