@@ -22,7 +22,11 @@ fn node_id_from_path(path: &str) -> String {
     hasher.update(path.as_bytes());
     let result = hasher.finalize();
     // Take first 8 bytes → 16 hex chars
-    result.iter().take(8).map(|b| format!("{:02x}", b)).collect()
+    result
+        .iter()
+        .take(8)
+        .map(|b| format!("{:02x}", b))
+        .collect()
 }
 
 /// Generate a display name from a file path (last component without extension).
@@ -251,7 +255,9 @@ pub fn build_graph(
     let tour = build_tour(&nodes);
 
     KnowledgeGraph {
-        version: option_env!("CARGO_PKG_VERSION").unwrap_or("0.1.0").to_string(),
+        version: option_env!("CARGO_PKG_VERSION")
+            .unwrap_or("0.1.0")
+            .to_string(),
         kind: Some("codebase".to_string()),
         project,
         nodes,
@@ -344,9 +350,7 @@ pub fn build_import_edges(parsed_files: &[ParsedFile]) -> Vec<GraphEdge> {
         name_to_path.entry(stem.to_string()).or_insert(&pf.path);
 
         // Also index by full path for exact matches
-        name_to_path
-            .entry(pf.path.clone())
-            .or_insert(&pf.path);
+        name_to_path.entry(pf.path.clone()).or_insert(&pf.path);
     }
 
     for pf in parsed_files {
@@ -356,19 +360,13 @@ pub fn build_import_edges(parsed_files: &[ParsedFile]) -> Vec<GraphEdge> {
             // Try to resolve the import source to a known file
             // The import source might be like "std::collections::HashMap" or "crate::types"
             // Try to match by the target module name
-            let import_name = import
-                .source
-                .split("::")
-                .last()
-                .unwrap_or(&import.source);
+            let import_name = import.source.split("::").last().unwrap_or(&import.source);
 
             // Try matching: first by exact path, then by stem
-            let target_path = name_to_path
-                .get(import_name)
-                .or_else(|| {
-                    // Try as a relative module path (e.g., "crate::types" → "types")
-                    name_to_path.get(&import.source)
-                });
+            let target_path = name_to_path.get(import_name).or_else(|| {
+                // Try as a relative module path (e.g., "crate::types" → "types")
+                name_to_path.get(&import.source)
+            });
 
             if let Some(&target_path) = target_path {
                 if target_path != pf.path {
@@ -410,14 +408,22 @@ pub fn build_layers(nodes: &[GraphNode]) -> Vec<Layer> {
             NodeType::File | NodeType::Function | NodeType::Class | NodeType::Module => {
                 ("code", "Core Code", "Source code files and modules")
             }
-            NodeType::Config => ("config", "Configuration", "Configuration and settings files"),
+            NodeType::Config => (
+                "config",
+                "Configuration",
+                "Configuration and settings files",
+            ),
             NodeType::Document => ("docs", "Documentation", "Documentation and markdown files"),
-            NodeType::Resource | NodeType::Service | NodeType::Pipeline => {
-                ("infra", "Infrastructure", "Infrastructure and deployment files")
-            }
-            NodeType::Schema | NodeType::Table => {
-                ("data", "Data & Schema", "Data models and schema definitions")
-            }
+            NodeType::Resource | NodeType::Service | NodeType::Pipeline => (
+                "infra",
+                "Infrastructure",
+                "Infrastructure and deployment files",
+            ),
+            NodeType::Schema | NodeType::Table => (
+                "data",
+                "Data & Schema",
+                "Data models and schema definitions",
+            ),
             NodeType::Endpoint => ("api", "API Layer", "API endpoints and routes"),
             NodeType::Script => ("scripts", "Scripts", "Build and automation scripts"),
             _ => ("other", "Other", "Miscellaneous nodes"),
@@ -466,10 +472,7 @@ pub fn build_tour(nodes: &[GraphNode]) -> Vec<TourStep> {
     let mut tour = Vec::new();
 
     // Step 1: Project overview
-    let file_nodes: Vec<&GraphNode> = nodes
-        .iter()
-        .filter(|n| n.file_path.is_some())
-        .collect();
+    let file_nodes: Vec<&GraphNode> = nodes.iter().filter(|n| n.file_path.is_some()).collect();
     let dir_nodes: Vec<&GraphNode> = nodes
         .iter()
         .filter(|n| n.file_path.is_none() && n.node_type == NodeType::Module)
@@ -801,12 +804,16 @@ mod tests {
         // Check that main.rs → lib.rs exists
         let main_id = node_id_from_path("src/main.rs");
         let lib_id = node_id_from_path("src/lib.rs");
-        let has_main_to_lib = edges.iter().any(|e| e.source == main_id && e.target == lib_id);
+        let has_main_to_lib = edges
+            .iter()
+            .any(|e| e.source == main_id && e.target == lib_id);
         assert!(has_main_to_lib, "Missing main.rs → lib.rs import edge");
 
         // Check that lib.rs → types.rs exists
         let types_id = node_id_from_path("src/types.rs");
-        let has_lib_to_types = edges.iter().any(|e| e.source == lib_id && e.target == types_id);
+        let has_lib_to_types = edges
+            .iter()
+            .any(|e| e.source == lib_id && e.target == types_id);
         assert!(has_lib_to_types, "Missing lib.rs → types.rs import edge");
     }
 

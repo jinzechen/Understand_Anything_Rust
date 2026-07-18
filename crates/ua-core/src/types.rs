@@ -178,8 +178,12 @@ pub enum Direction {
     Bidirectional,
 }
 
-fn default_direction() -> Direction { Direction::Forward }
-fn default_weight() -> f32 { 0.5 }
+fn default_direction() -> Direction {
+    Direction::Forward
+}
+fn default_weight() -> f32 {
+    0.5
+}
 
 // ── Metadata ─────────────────────────────────────────────────────────────────
 

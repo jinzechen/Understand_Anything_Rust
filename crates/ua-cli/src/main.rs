@@ -15,7 +15,10 @@ fn main() -> anyhow::Result<()> {
     match cmd {
         "scan" => {
             let result = ua_core::scanner::scan_project(root)?;
-            println!("{} files | {:?}", result.total_files, result.estimated_complexity);
+            println!(
+                "{} files | {:?}",
+                result.total_files, result.estimated_complexity
+            );
             for (lang, count) in &result.stats.by_language {
                 println!("  {}: {} files", lang, count);
             }
@@ -29,7 +32,9 @@ fn main() -> anyhow::Result<()> {
                     match registry.parse(&root.join(&file.path)) {
                         Ok(parsed) => println!(
                             "{}: {} defs, {} imports",
-                            file.path, parsed.definitions.len(), parsed.imports.len()
+                            file.path,
+                            parsed.definitions.len(),
+                            parsed.imports.len()
                         ),
                         Err(_) => {}
                     }
@@ -55,8 +60,13 @@ fn main() -> anyhow::Result<()> {
 
             println!("[Phase 3/3] Building knowledge graph ...");
             let graph = ua_core::graph::build_graph(root, &scan, &parsed);
-            println!("  {} nodes, {} edges, {} layers, {} tour steps",
-                graph.nodes.len(), graph.edges.len(), graph.layers.len(), graph.tour.len());
+            println!(
+                "  {} nodes, {} edges, {} layers, {} tour steps",
+                graph.nodes.len(),
+                graph.edges.len(),
+                graph.layers.len(),
+                graph.tour.len()
+            );
 
             let out = output_path
                 .map(|s| s.to_string())
@@ -77,7 +87,9 @@ fn main() -> anyhow::Result<()> {
             println!();
             println!("  ua scan [path]           Scan project structure");
             println!("  ua parse [path]          Parse code files");
-            println!("  ua build [path] [out]    Build knowledge graph (→ .ua/knowledge-graph.json)");
+            println!(
+                "  ua build [path] [out]    Build knowledge graph (→ .ua/knowledge-graph.json)"
+            );
             println!("  ua json [path]           Output scan result as JSON");
         }
     }

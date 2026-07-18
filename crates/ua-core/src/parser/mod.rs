@@ -1,8 +1,8 @@
 //! Code parser trait and Rust parser implementation.
 //! Extracts structural information from source code using regex-based analysis.
 
-use std::path::Path;
 use regex::Regex;
+use std::path::Path;
 
 use crate::types::{DefinitionInfo, EndpointInfo, ImportInfo, SectionInfo, ServiceInfo, StepInfo};
 
@@ -34,7 +34,9 @@ pub struct ParserRegistry {
 
 impl ParserRegistry {
     pub fn new() -> Self {
-        Self { parsers: Vec::new() }
+        Self {
+            parsers: Vec::new(),
+        }
     }
 
     pub fn register(&mut self, parser: Box<dyn CodeParser>) {
@@ -50,7 +52,8 @@ impl ParserRegistry {
     }
 
     pub fn parse(&self, path: &Path) -> anyhow::Result<ParsedFile> {
-        let parser = self.find_for(path)
+        let parser = self
+            .find_for(path)
             .ok_or_else(|| anyhow::anyhow!("No parser for: {}", path.display()))?;
         let content = std::fs::read_to_string(path)?;
         parser.parse_file(path, &content)
@@ -94,8 +97,12 @@ impl RustParser {
 }
 
 impl CodeParser for RustParser {
-    fn language(&self) -> &str { "rust" }
-    fn extensions(&self) -> &[&str] { &["rs"] }
+    fn language(&self) -> &str {
+        "rust"
+    }
+    fn extensions(&self) -> &[&str] {
+        &["rs"]
+    }
 
     fn parse_file(&self, path: &Path, content: &str) -> anyhow::Result<ParsedFile> {
         let line_count = content.lines().count();
@@ -107,8 +114,10 @@ impl CodeParser for RustParser {
             if name != "main" {
                 let line = self.line_of(content, cap.get(0).unwrap().start());
                 definitions.push(DefinitionInfo {
-                    name, kind: "function".into(),
-                    line_range: (line, line), fields: vec![],
+                    name,
+                    kind: "function".into(),
+                    line_range: (line, line),
+                    fields: vec![],
                 });
             }
         }
@@ -116,32 +125,40 @@ impl CodeParser for RustParser {
         for cap in self.struct_re.captures_iter(content) {
             let line = self.line_of(content, cap.get(0).unwrap().start());
             definitions.push(DefinitionInfo {
-                name: cap[1].to_string(), kind: "struct".into(),
-                line_range: (line, line), fields: vec![],
+                name: cap[1].to_string(),
+                kind: "struct".into(),
+                line_range: (line, line),
+                fields: vec![],
             });
         }
 
         for cap in self.trait_re.captures_iter(content) {
             let line = self.line_of(content, cap.get(0).unwrap().start());
             definitions.push(DefinitionInfo {
-                name: cap[1].to_string(), kind: "trait".into(),
-                line_range: (line, line), fields: vec![],
+                name: cap[1].to_string(),
+                kind: "trait".into(),
+                line_range: (line, line),
+                fields: vec![],
             });
         }
 
         for cap in self.enum_re.captures_iter(content) {
             let line = self.line_of(content, cap.get(0).unwrap().start());
             definitions.push(DefinitionInfo {
-                name: cap[1].to_string(), kind: "enum".into(),
-                line_range: (line, line), fields: vec![],
+                name: cap[1].to_string(),
+                kind: "enum".into(),
+                line_range: (line, line),
+                fields: vec![],
             });
         }
 
         for cap in self.impl_re.captures_iter(content) {
             let line = self.line_of(content, cap.get(0).unwrap().start());
             definitions.push(DefinitionInfo {
-                name: format!("impl {}", &cap[1]), kind: "implementation".into(),
-                line_range: (line, line), fields: vec![],
+                name: format!("impl {}", &cap[1]),
+                kind: "implementation".into(),
+                line_range: (line, line),
+                fields: vec![],
             });
         }
 
@@ -149,7 +166,11 @@ impl CodeParser for RustParser {
             let source = cap[1].trim().to_string();
             let name = source.split("::").last().unwrap_or(&source).to_string();
             let line = self.line_of(content, cap.get(0).unwrap().start());
-            imports.push(ImportInfo { name, source, line_range: (line, line) });
+            imports.push(ImportInfo {
+                name,
+                source,
+                line_range: (line, line),
+            });
         }
 
         Ok(ParsedFile {
@@ -202,7 +223,9 @@ use serde::{Serialize, Deserialize};
     #[test]
     fn test_rust_parser_functions() {
         let parser = RustParser::new();
-        let result = parser.parse_file(Path::new("test.rs"), SAMPLE_RUST).unwrap();
+        let result = parser
+            .parse_file(Path::new("test.rs"), SAMPLE_RUST)
+            .unwrap();
 
         assert_eq!(result.language, "rust");
         let names: Vec<_> = result.definitions.iter().map(|d| &d.name).collect();

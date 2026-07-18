@@ -47,41 +47,69 @@ fn detect_language(path: &Path) -> &'static str {
 
 /// Classify a file by its category (code, config, docs, infra, etc.).
 fn classify_file(path: &Path, language: &str) -> FileCategory {
-    let name = path.file_name().and_then(|n| n.to_str()).unwrap_or("").to_lowercase();
+    let name = path
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or("")
+        .to_lowercase();
 
     // Infrastructure files
-    if name == "dockerfile" || name == "docker-compose.yml" || name == "docker-compose.yaml"
-        || path.to_str().map(|p| p.contains(".github/workflows")).unwrap_or(false)
-        || path.to_str().map(|p| p.contains("Jenkinsfile")).unwrap_or(false)
+    if name == "dockerfile"
+        || name == "docker-compose.yml"
+        || name == "docker-compose.yaml"
+        || path
+            .to_str()
+            .map(|p| p.contains(".github/workflows"))
+            .unwrap_or(false)
+        || path
+            .to_str()
+            .map(|p| p.contains("Jenkinsfile"))
+            .unwrap_or(false)
     {
         return FileCategory::Infra;
     }
 
     // Config files
     if matches!(language, "json" | "yaml" | "toml" | "xml" | "env")
-        || name == "makefile" || name == ".env" || name == ".envrc"
+        || name == "makefile"
+        || name == ".env"
+        || name == ".envrc"
         || name.starts_with(".env.")
-        || name.ends_with("rc") || name.ends_with(".conf")
+        || name.ends_with("rc")
+        || name.ends_with(".conf")
     {
         return FileCategory::Config;
     }
 
     // Documentation
-    if matches!(language, "markdown") || name == "readme.md" || name == "changelog.md"
-        || name == "contributing.md" || name == "license" || name == "licence"
+    if matches!(language, "markdown")
+        || name == "readme.md"
+        || name == "changelog.md"
+        || name == "contributing.md"
+        || name == "license"
+        || name == "licence"
     {
         return FileCategory::Docs;
     }
 
     // Test files
-    if name.contains("test") || name.contains("spec")
-        || path.to_str().map(|p| p.contains("/tests/") || p.contains("/__tests__/") || p.contains("/test/")).unwrap_or(false)
+    if name.contains("test")
+        || name.contains("spec")
+        || path
+            .to_str()
+            .map(|p| p.contains("/tests/") || p.contains("/__tests__/") || p.contains("/test/"))
+            .unwrap_or(false)
     {
         return FileCategory::Test;
     }
 
     // Data files
-    if matches!(language, "csv") || path.extension().map(|e| e == "csv" || e == "tsv" || e == "jsonl").unwrap_or(false) {
+    if matches!(language, "csv")
+        || path
+            .extension()
+            .map(|e| e == "csv" || e == "tsv" || e == "jsonl")
+            .unwrap_or(false)
+    {
         return FileCategory::Data;
     }
 
@@ -91,9 +119,30 @@ fn classify_file(path: &Path, language: &str) -> FileCategory {
     }
 
     // Code (default for recognized programming languages)
-    let code_languages = ["rust", "typescript", "javascript", "python", "go", "java", "kotlin",
-        "swift", "c", "cpp", "csharp", "ruby", "php", "lua", "sql", "powershell",
-        "terraform", "protobuf", "graphql", "dockerfile", "css", "makefile"];
+    let code_languages = [
+        "rust",
+        "typescript",
+        "javascript",
+        "python",
+        "go",
+        "java",
+        "kotlin",
+        "swift",
+        "c",
+        "cpp",
+        "csharp",
+        "ruby",
+        "php",
+        "lua",
+        "sql",
+        "powershell",
+        "terraform",
+        "protobuf",
+        "graphql",
+        "dockerfile",
+        "css",
+        "makefile",
+    ];
     if code_languages.contains(&language) {
         return FileCategory::Code;
     }
@@ -135,14 +184,26 @@ pub fn scan_project(root: &Path) -> anyhow::Result<ScanResult> {
         let path = entry.path();
 
         // Skip hidden files and .git directories
-        if path.to_str().map(|p| p.contains("/.git/") || p.contains("\\.git\\")).unwrap_or(false) {
+        if path
+            .to_str()
+            .map(|p| p.contains("/.git/") || p.contains("\\.git\\"))
+            .unwrap_or(false)
+        {
             continue;
         }
-        if path.file_name().map(|n| n.to_str().map(|s| s.starts_with('.')).unwrap_or(false)).unwrap_or(false) {
+        if path
+            .file_name()
+            .map(|n| n.to_str().map(|s| s.starts_with('.')).unwrap_or(false))
+            .unwrap_or(false)
+        {
             continue;
         }
         // Skip target/ and node_modules/
-        if path.to_str().map(|p| p.contains("/target/") || p.contains("/node_modules/")).unwrap_or(false) {
+        if path
+            .to_str()
+            .map(|p| p.contains("/target/") || p.contains("/node_modules/"))
+            .unwrap_or(false)
+        {
             continue;
         }
 
@@ -153,7 +214,9 @@ pub fn scan_project(root: &Path) -> anyhow::Result<ScanResult> {
 
         total_lines += size_lines;
 
-        *by_category.entry(format!("{:?}", category).to_lowercase()).or_default() += 1;
+        *by_category
+            .entry(format!("{:?}", category).to_lowercase())
+            .or_default() += 1;
         *by_language.entry(language.to_string()).or_default() += 1;
 
         files.push(ScanEntry {
@@ -196,10 +259,25 @@ mod tests {
 
     #[test]
     fn test_file_classification() {
-        assert_eq!(classify_file(Path::new("src/main.rs"), "rust"), FileCategory::Code);
-        assert_eq!(classify_file(Path::new("README.md"), "markdown"), FileCategory::Docs);
-        assert_eq!(classify_file(Path::new("Cargo.toml"), "toml"), FileCategory::Config);
-        assert_eq!(classify_file(Path::new("Dockerfile"), "dockerfile"), FileCategory::Infra);
-        assert_eq!(classify_file(Path::new("deploy.sh"), "shell"), FileCategory::Script);
+        assert_eq!(
+            classify_file(Path::new("src/main.rs"), "rust"),
+            FileCategory::Code
+        );
+        assert_eq!(
+            classify_file(Path::new("README.md"), "markdown"),
+            FileCategory::Docs
+        );
+        assert_eq!(
+            classify_file(Path::new("Cargo.toml"), "toml"),
+            FileCategory::Config
+        );
+        assert_eq!(
+            classify_file(Path::new("Dockerfile"), "dockerfile"),
+            FileCategory::Infra
+        );
+        assert_eq!(
+            classify_file(Path::new("deploy.sh"), "shell"),
+            FileCategory::Script
+        );
     }
 }

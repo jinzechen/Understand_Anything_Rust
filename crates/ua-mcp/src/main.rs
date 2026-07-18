@@ -76,12 +76,18 @@ fn main() {
                         match ua_core::scanner::scan_project(std::path::Path::new(path)) {
                             Ok(result) => {
                                 let json = serde_json::to_value(&result).unwrap_or_default();
-                                Some(json!({"content": [{"type": "text", "text": serde_json::to_string_pretty(&json).unwrap_or_default()}]}))
+                                Some(
+                                    json!({"content": [{"type": "text", "text": serde_json::to_string_pretty(&json).unwrap_or_default()}]}),
+                                )
                             }
-                            Err(e) => Some(json!({"content": [{"type": "text", "text": format!("Error: {}", e)}], "isError": true})),
+                            Err(e) => Some(
+                                json!({"content": [{"type": "text", "text": format!("Error: {}", e)}], "isError": true}),
+                            ),
                         }
                     }
-                    _ => Some(json!({"content": [{"type": "text", "text": format!("Unknown tool: {}", name)}], "isError": true})),
+                    _ => Some(
+                        json!({"content": [{"type": "text", "text": format!("Unknown tool: {}", name)}], "isError": true}),
+                    ),
                 }
             }
             _ => None,
