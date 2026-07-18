@@ -9,9 +9,10 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use sha2::{Digest, Sha256};
 
+use crate::parser::ParsedFile;
 use crate::types::{
     Complexity, Direction, EdgeType, FileCategory, GraphEdge, GraphNode, KnowledgeGraph, Layer,
-    NodeType, ParsedFile, ProjectMeta, ScanEntry, ScanResult, TourStep,
+    NodeType, ProjectMeta, ScanEntry, ScanResult, TourStep,
 };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -425,7 +426,6 @@ pub fn build_layers(nodes: &[GraphNode]) -> Vec<Layer> {
                 "Data models and schema definitions",
             ),
             NodeType::Endpoint => ("api", "API Layer", "API endpoints and routes"),
-            NodeType::Script => ("scripts", "Scripts", "Build and automation scripts"),
             _ => ("other", "Other", "Miscellaneous nodes"),
         };
 
@@ -846,7 +846,7 @@ mod tests {
         assert!(layer_ids.contains(&"code"));
         assert!(layer_ids.contains(&"config"));
         assert!(layer_ids.contains(&"docs"));
-        assert!(layer_ids.contains(&"scripts"));
+        assert!(layer_ids.contains(&"other"));
 
         // Code layer should have 3 nodes
         let code_layer = layers.iter().find(|l| l.id == "code").unwrap();
