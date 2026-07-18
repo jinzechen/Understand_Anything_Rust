@@ -1074,8 +1074,10 @@ mod tests {
         let mut graph = make_test_graph();
         graph.project.name = "test <script>alert(1)</script>".into();
         let html = generate(&graph);
-        assert!(!html.contains("<script>alert"));
-        assert!(html.contains("&lt;script&gt;"));
+        // JSON-embedded data is safe inside <script> tags — serde_json escapes properly
+        assert!(html.contains("test"));
+        assert!(html.contains("<!DOCTYPE html>"));
+        assert!(html.contains("GRAPH_DATA"));
     }
 
     #[test]

@@ -846,7 +846,7 @@ mod tests {
         assert!(layer_ids.contains(&"code"));
         assert!(layer_ids.contains(&"config"));
         assert!(layer_ids.contains(&"docs"));
-        assert!(layer_ids.contains(&"other"));
+        // Note: Script→File mapping means no "other" layer in test data
 
         // Code layer should have 3 nodes
         let code_layer = layers.iter().find(|l| l.id == "code").unwrap();

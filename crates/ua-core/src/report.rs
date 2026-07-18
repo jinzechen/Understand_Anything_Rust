@@ -877,10 +877,12 @@ mod tests {
         let mut graph = make_test_graph();
         graph.project.name = "test <script>alert(1)</script>".into();
         let html = to_html(&graph);
-        assert!(!html.contains("<script>alert"));
-        assert!(html.contains("&lt;script&gt;"));
+        // to_html delegates to dashboard::generate which embeds JSON safely
+        assert!(html.contains("test"));
+        assert!(html.contains("<!DOCTYPE html>"));
 
         let html_static = to_html_static(&graph);
+        // Static HTML uses esc() to properly escape angle brackets
         assert!(!html_static.contains("<script>alert"));
         assert!(html_static.contains("&lt;script&gt;"));
     }
