@@ -1,15 +1,29 @@
 //! Human-readable report generation — HTML and Markdown from KnowledgeGraph.
 //!
-//! Produces self-contained HTML (dark theme, no external deps) and clean
+//! Produces self-contained HTML (dark theme, interactive dashboard) and clean
 //! Markdown reports from a `KnowledgeGraph`.
+//!
+//! The `to_html` function now delegates to the interactive dashboard module
+//! (`dashboard::generate`). The legacy static HTML renderer is preserved as
+//! `to_html_static` for reference and backward compatibility.
 
 use crate::types::{Complexity, EdgeType, GraphEdge, GraphNode, KnowledgeGraph};
 use std::collections::{HashMap, HashSet};
 
 // ── Public API ───────────────────────────────────────────────────────────────
 
-/// Generate a self-contained HTML report with dark theme.
+/// Generate an interactive HTML dashboard from the knowledge graph.
+///
+/// Delegates to `dashboard::generate()` which produces a self-contained
+/// HTML file with D3.js force-directed graph visualization, search,
+/// layer filtering, tour navigation, and a node detail panel.
 pub fn to_html(graph: &KnowledgeGraph) -> String {
+    crate::dashboard::generate(graph)
+}
+
+/// Generate the legacy static HTML report (no JavaScript interactivity).
+/// Preserved for backward compatibility and reference.
+pub fn to_html_static(graph: &KnowledgeGraph) -> String {
     let mut out = String::new();
     html_header(&mut out, graph);
     html_section_overview(&mut out, graph);
@@ -812,14 +826,24 @@ mod tests {
         let html = to_html(&graph);
         assert!(html.contains("<!DOCTYPE html>"));
         assert!(html.contains("test-project"));
+        assert!(html.contains("GRAPH_DATA"));
+        assert!(html.contains("graph-svg"));
+        assert!(html.contains("search-input"));
+        assert!(html.contains("detail-panel"));
+        assert!(html.contains("stats-bar"));
+        // Verify escape works
+        assert!(!html.contains("<script>alert"));
+    }
+
+    #[test]
+    fn test_to_html_static_legacy() {
+        let graph = make_test_graph();
+        let html = to_html_static(&graph);
+        assert!(html.contains("<!DOCTYPE html>"));
+        assert!(html.contains("test-project"));
         assert!(html.contains("项目概览"));
         assert!(html.contains("架构分层"));
         assert!(html.contains("文件清单"));
-        assert!(html.contains("导入关系"));
-        assert!(html.contains("目录结构"));
-        assert!(html.contains("引导之旅"));
-        // Verify escape works
-        assert!(!html.contains("<script>"));
     }
 
     #[test]
@@ -855,6 +879,10 @@ mod tests {
         let html = to_html(&graph);
         assert!(!html.contains("<script>alert"));
         assert!(html.contains("&lt;script&gt;"));
+
+        let html_static = to_html_static(&graph);
+        assert!(!html_static.contains("<script>alert"));
+        assert!(html_static.contains("&lt;script&gt;"));
     }
 
     #[test]
@@ -877,6 +905,8 @@ mod tests {
         };
         let html = to_html(&graph);
         assert!(html.contains("empty"));
+        let html_static = to_html_static(&graph);
+        assert!(html_static.contains("empty"));
         let md = to_markdown(&graph);
         assert!(md.contains("# empty"));
     }
